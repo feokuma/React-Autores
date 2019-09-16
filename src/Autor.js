@@ -3,6 +3,7 @@ import $ from 'jquery';
 import PubSub from 'pubsub-js';
 import InputCustomizado from './componentes/InputCustomizado';
 import BotaoSubmitCustomizado from './componentes/BotaoSubmitCustomizado';
+import TratadorErro from './TratadorErros';
 
 export class FormularioAutor extends Component {
     constructor() {
@@ -18,7 +19,7 @@ export class FormularioAutor extends Component {
         event.preventDefault();
         console.log("Dados sendo enviados");
         $.ajax({
-            url: "http://localhost:8080/api/autores",
+            url: "https://cdc-react.herokuapp.com/api/autores",
             contentType: "application/json",
             dataType: 'json',
             type: 'post',
@@ -27,7 +28,9 @@ export class FormularioAutor extends Component {
                 PubSub.publish('atualiza-lista-autores', resposta);
             },
             error: function (resposta) {
-
+                if(resposta.status === 400){
+                    new TratadorErro().publicaErros(resposta.responseJSON);
+                }
             }
         });
     }
@@ -95,7 +98,7 @@ export default class AutorBox extends Component {
 
     componentDidMount() {
         $.ajax({
-            url: "http://localhost:8080/api/autores",
+            url: "https://cdc-react.herokuapp.com/api/autores",
             dataType: 'json',
             success: function (resposta) {
                 this.setState({ listaAutores: resposta });
